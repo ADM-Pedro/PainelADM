@@ -1,36 +1,24 @@
-# DK Diário Brawl
+# Simulador de Ganhos — DK Diário Brawl (ADMs)
 
-Site oficial e painel interno dos torneios diários de Brawl Stars do **DK Diário Brawl**.
+Ferramenta **interna dos ADMs**. Calcula o prêmio certo de cada jogador, o lucro de
+uma sala e projeta sua renda (dia/semana/mês). Separado do site público — você manda
+o link só pros seus ADMs.
 
-## Conteúdo deste repositório
-
-| Arquivo | O que é | Link depois de publicar |
-|---|---|---|
-| `index.html` | Site público (página inicial) | `https://SEU-USUARIO.github.io/SEU-REPO/` |
-| `painel-adm.html` | Painel interno dos ADMs | `https://SEU-USUARIO.github.io/SEU-REPO/painel-adm.html` |
-| `logo.png` | Logo usada nos dois | — |
-
-## Como publicar (GitHub Pages)
-
-1. Crie um repositório novo no GitHub.
-2. **Add file → Upload files** e arraste TODOS os arquivos desta pasta.
+## Como publicar (repositório SEPARADO)
+1. Crie **outro** repositório no GitHub (ex: `dk-simulador-adms`).
+2. **Add file → Upload files** e arraste os 2 arquivos desta pasta (`index.html` e `logo.png`).
 3. **Commit changes**.
-4. **Settings → Pages** → em "Branch" escolha `main` / `/ (root)` → **Save**.
-5. Em 1–2 minutos o site fica no ar no link acima.
+4. **Settings → Pages** → Branch `main` / `/ (root)` → **Save**.
+5. Em ~1 min fica no ar: `https://SEU-USUARIO.github.io/dk-simulador-adms/`
+6. Manda esse link só pros 4 ADMs.
 
-## Como atualizar depois
+## O que ele faz
+- **Projeção de renda:** você diz quantas partidas roda por dia e por semana, se é Dono
+  (100%) ou ADM (50%), e ele mostra quanto você fatura por dia, semana e mês — já
+  descontando o gasto semanal de R$10 (no caso dos ADMs).
+- **Quanto pagar a um jogador:** kills + se venceu = quanto ele recebe (sem erro).
+- **Lucro de uma sala:** o que sobra pra casa em uma partida e a sua parte.
+- **Valores:** dá pra ajustar inscrição, kill, vitória e gasto semanal se as regras mudarem.
 
-Suba o arquivo com o **mesmo nome** (Add file → Upload files → Commit). O GitHub
-substitui o antigo automaticamente — não duplica. O site atualiza sozinho em ~1 min.
-
-## ⚠️ Observações
-
-- A `logo.png` precisa ficar **na mesma pasta** dos HTML (raiz do repositório),
-  senão a logo não carrega.
-- O **painel-adm.html** é de uso interno dos ADMs. Ele fica acessível por quem tiver
-  o link, mas os dados ficam salvos só no aparelho de quem usa (nada fica online).
-  Se preferir manter o painel 100% privado, **não suba o `painel-adm.html`** e use
-  ele só localmente no seu PC.
-
----
-Plataforma amadora de torneios. Jogue com responsabilidade.
+> Os números digitados ficam salvos só no aparelho de quem usa. Nada vai pra internet.
+> A `logo.png` precisa ficar na mesma pasta do `index.html`.
