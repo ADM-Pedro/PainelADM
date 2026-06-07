@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#05050a" />
+<title>Painel do ADM — DK Diário Brawl</title>
+<link rel="icon" href="logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#05050a;--bg-2:#0a0a13;--panel:#101019;--panel-2:#16161f;
+  --line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.16);
+  --purple:#9b3cff;--purple-soft:#b56bff;--gold:#ffc531;--gold-soft:#ffd970;
+  --green:#36e07a;--red:#ff6b6b;--blue:#2e9bff;
+  --text:#f4f4f8;--muted:#9b9bb0;--muted-2:#6f6f86;
+  --r:14px;--r-sm:10px;--ease:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Inter",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Oswald",sans-serif;letter-spacing:.5px;line-height:1.1}
+a{color:inherit}
+::selection{background:var(--purple);color:#fff}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--purple);border-radius:99px;border:2px solid var(--bg)}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+
+.bg-glow{position:fixed;z-index:-1;border-radius:50%;filter:blur(130px);pointer-events:none;opacity:.4}
+.bg-glow--p{width:500px;height:500px;background:#6a18c9;top:-180px;left:-120px}
+.bg-glow--g{width:380px;height:380px;background:#6e5000;bottom:-140px;right:-100px;opacity:.25}
+
+/* LOGIN */
+.login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.login__card{width:100%;max-width:460px;background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line-2);border-radius:24px;padding:38px 30px;text-align:center;box-shadow:0 30px 80px -30px #000}
+.login__logo{width:96px;height:96px;border-radius:50%;object-fit:cover;margin:0 auto 16px;box-shadow:0 0 40px -8px rgba(155,60,255,.6);display:block}
+.login h1{font-size:26px;margin-bottom:4px}
+.login p{color:var(--muted);font-size:14px;margin-bottom:24px}
+.who{font-family:"Oswald",sans-serif;letter-spacing:2px;text-transform:uppercase;font-size:12px;color:var(--purple-soft);margin-bottom:14px}
+.user-grid{display:grid;gap:10px}
+.user-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:15px 18px;color:var(--text);font-size:15px;font-weight:600;transition:.2s}
+.user-btn:hover{border-color:var(--purple);transform:translateY(-2px);background:rgba(155,60,255,.08)}
+.user-btn .tag{font-family:"Oswald",sans-serif;font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:99px}
+.tag--dono{background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#1a1300}
+.tag--adm{background:rgba(155,60,255,.18);color:var(--purple-soft);border:1px solid rgba(155,60,255,.35)}
+
+/* APP */
+.app{display:none;min-height:100vh;flex-direction:column}
+.app.is-on{display:flex}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px clamp(12px,3vw,28px);background:rgba(5,5,10,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topbar__brand{display:flex;align-items:center;gap:10px;font-family:"Oswald",sans-serif;font-size:18px}
+.topbar__brand img{width:34px;height:34px;border-radius:50%;object-fit:cover}
+.topbar__user{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.topbar__user b{color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:99px;padding:10px 18px;font-family:"Oswald",sans-serif;font-weight:600;letter-spacing:.4px;text-transform:uppercase;font-size:13px;transition:transform .15s,filter .2s,background .2s}
+.btn--gold{background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#1a1300}
+.btn--purple{background:linear-gradient(135deg,var(--purple),#6a18c9);color:#fff}
+.btn--green{background:linear-gradient(135deg,#2be36b,#1faf55);color:#04250f}
+.btn--ghost{background:rgba(255,255,255,.05);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
+.btn--danger{background:rgba(255,70,70,.15);color:#ff8585;box-shadow:inset 0 0 0 1px rgba(255,70,70,.3)}
+.btn--sm{padding:7px 13px;font-size:12px}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.btn:active{transform:translateY(0)}
+
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:10px clamp(12px,3vw,28px) 0;border-bottom:1px solid var(--line);position:sticky;top:59px;background:var(--bg);z-index:15}
+.tab{white-space:nowrap;background:none;border:none;color:var(--muted);font-family:"Oswald",sans-serif;font-weight:600;letter-spacing:.5px;font-size:14px;padding:12px 16px;border-bottom:3px solid transparent;transition:.2s}
+.tab:hover{color:var(--text)}
+.tab.is-active{color:var(--text);border-bottom-color:var(--gold)}
+
+.main{flex:1;padding:24px clamp(12px,3vw,28px) 80px;max-width:1100px;margin:0 auto;width:100%}
+.view{display:none;animation:fade .35s var(--ease)}
+.view.is-on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.page-title{font-size:26px;margin-bottom:4px}
+.page-sub{color:var(--muted);font-size:14px;margin-bottom:22px}
+
+.card{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-radius:var(--r);padding:22px;margin-bottom:18px}
+.card h3{font-size:19px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.field input,.field select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 13px;color:var(--text);font-size:15px}
+.field input:focus,.field select:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(155,60,255,.2)}
+
+/* stat cards */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
+.stat{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.stat .v{font-family:"Oswald",sans-serif;font-size:30px;font-weight:700}
+.stat .l{font-size:12.5px;color:var(--muted-2)}
+.stat--gold .v{color:var(--gold)}
+.stat--green .v{color:var(--green)}
+.stat--purple .v{color:var(--purple-soft)}
+.stat--blue .v{color:var(--blue)}
+
+/* players table in nova partida */
+.players{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.prow{display:grid;grid-template-columns:1fr 84px 96px 40px;gap:8px;align-items:center}
+.prow input[type=text]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 11px;color:var(--text);font-size:14px}
+.prow input[type=number]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;color:var(--text);font-size:14px;text-align:center}
+.win-btn{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 6px;font-size:11px;font-family:"Oswald",sans-serif;letter-spacing:.5px;color:var(--muted);transition:.2s}
+.win-btn.is-win{background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#1a1300;border-color:transparent}
+.del-row{background:rgba(255,70,70,.12);border:1px solid rgba(255,70,70,.25);border-radius:var(--r-sm);color:#ff8585;font-size:18px;line-height:1;padding:8px 0}
+.prow-head{display:grid;grid-template-columns:1fr 84px 96px 40px;gap:8px;font-size:11px;color:var(--muted-2);font-family:"Oswald",sans-serif;letter-spacing:1px;text-transform:uppercase;padding:0 2px}
+
+.preview{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:var(--r-sm);padding:16px;margin-top:6px}
+.pline{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);padding:5px 0}
+.pline span:last-child{font-family:"Oswald",sans-serif;color:var(--text);font-size:16px}
+.pline--total{border-top:1px dashed var(--line-2);margin-top:6px;padding-top:10px}
+.pline--total span:last-child{color:var(--gold);font-size:18px}
+.pline--split span:last-child{color:var(--green);font-weight:700}
+
+/* generic table */
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-family:"Oswald",sans-serif;font-weight:600;letter-spacing:.5px;color:var(--muted-2);font-size:12px;text-transform:uppercase;padding:10px 12px;border-bottom:1px solid var(--line)}
+.tbl td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .money{font-family:"Oswald",sans-serif;color:var(--gold)}
+.tbl .pos{font-family:"Oswald",sans-serif;font-size:16px}
+.table-wrap{overflow-x:auto;background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-radius:var(--r)}
+.rank-1 td{background:linear-gradient(90deg,rgba(255,197,49,.12),transparent)}
+.chip{display:inline-block;font-size:11px;font-family:"Oswald",sans-serif;letter-spacing:.5px;padding:3px 9px;border-radius:99px;background:rgba(155,60,255,.16);color:var(--purple-soft)}
+.chip--gold{background:rgba(255,197,49,.16);color:var(--gold)}
+.chip--dono{background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#1a1300}
+.chip--ok{background:rgba(54,224,122,.15);color:var(--green)}
+.chip--no{background:rgba(255,70,70,.15);color:#ff8585}
+
+.month-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.month-bar input{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 12px;color:var(--text)}
+
+.empty{text-align:center;color:var(--muted-2);padding:34px;font-size:14px}
+.muted{color:var(--muted)}
+.row-actions{display:flex;gap:6px;flex-wrap:wrap}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.hint{font-size:12.5px;color:var(--muted-2);margin-top:6px}
+
+details.match{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;padding:4px 16px}
+details.match summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;flex-wrap:wrap}
+details.match summary::-webkit-details-marker{display:none}
+.m-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.m-meta b{color:var(--text);font-family:"Oswald",sans-serif}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--panel-2);border:1px solid var(--line-2);border-left:4px solid var(--green);padding:13px 20px;border-radius:var(--r-sm);font-size:14px;z-index:100;transition:transform .35s var(--ease);max-width:92vw}
+.toast.is-on{transform:translateX(-50%) translateY(0)}
+.toast.err{border-left-color:var(--red)}
+
+@media(max-width:640px){
+  .grid2,.grid3{grid-template-columns:1fr}
+  .topbar__brand span{display:none}
+}
+</style>
+</head>
+<body>
+<div class="bg-glow bg-glow--p"></div>
+<div class="bg-glow bg-glow--g"></div>
+
+<!-- ===== LOGIN ===== -->
+<div class="login" id="login">
+  <div class="login__card">
+    <img class="login__logo" src="logo.png" alt="DK" onerror="this.style.display='none'" />
+    <h1>Painel do ADM</h1>
+    <p>DK Diário Brawl · controle de partidas e acertos</p>
+    <div class="who">Quem é você?</div>
+    <div class="user-grid" id="userGrid"></div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar__brand">
+      <img src="logo.png" alt="DK" onerror="this.style.display='none'" />
+      <span>Painel ADM</span>
+    </div>
+    <div class="topbar__user">
+      <span>Logado: <b id="curName">—</b> <span id="curTag"></span></span>
+      <button class="btn btn--ghost btn--sm" id="logoutBtn">Trocar</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab is-active" data-view="nova">Nova Partida</button>
+    <button class="tab" data-view="partidas">Partidas</button>
+    <button class="tab" data-view="ranking">Ranking</button>
+    <button class="tab" data-view="acertos">Acertos 💰</button>
+    <button class="tab" data-view="config">Config</button>
+  </div>
+
+  <div class="main">
+    <!-- NOVA PARTIDA -->
+    <section class="view is-on" id="view-nova">
+      <h2 class="page-title">Registrar partida</h2>
+      <p class="page-sub">Preencha os jogadores e as kills. O sistema calcula prêmios, lucro e divisão automaticamente.</p>
+      <div class="card">
+        <div class="grid2">
+          <div class="field"><label>Quem rodou essa partida?</label><select id="matchAdm"></select></div>
+          <div class="field"><label>Data</label><input type="date" id="matchDate" /></div>
+        </div>
+        <div class="prow-head"><span>Jogador (nick)</span><span>Kills</span><span>Vencedor</span><span></span></div>
+        <div class="players" id="players"></div>
+        <button class="btn btn--ghost btn--sm" id="addPlayer">+ Adicionar jogador</button>
+
+        <div class="preview" id="preview"></div>
+
+        <div class="toolbar" style="margin-top:16px;margin-bottom:0">
+          <button class="btn btn--green" id="saveMatch">Salvar partida</button>
+          <button class="btn btn--ghost" id="clearMatch">Limpar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PARTIDAS -->
+    <section class="view" id="view-partidas">
+      <h2 class="page-title">Histórico de partidas</h2>
+      <p class="page-sub">Todas as salas registradas. Toque pra ver os detalhes.</p>
+      <div class="month-bar">
+        <label class="muted">Mês:</label><input type="month" id="histMonth" />
+        <button class="btn btn--ghost btn--sm" id="histAll">Ver tudo</button>
+      </div>
+      <div id="matchList"></div>
+    </section>
+
+    <!-- RANKING -->
+    <section class="view" id="view-ranking">
+      <h2 class="page-title">Ranking mensal</h2>
+      <p class="page-sub">Quem mais faturou no mês. O 1º lugar leva o bônus de R$40.</p>
+      <div class="month-bar">
+        <label class="muted">Mês:</label><input type="month" id="rankMonth" />
+      </div>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>#</th><th>Jogador</th><th>Kills</th><th>Vitórias</th><th>Faturou</th></tr></thead>
+          <tbody id="rankBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ACERTOS -->
+    <section class="view" id="view-acertos">
+      <h2 class="page-title">Acertos & Financeiro</h2>
+      <p class="page-sub" id="acertosSub">Divisão do lucro e mensalidades.</p>
+      <div class="month-bar">
+        <label class="muted">Mês:</label><input type="month" id="acMonth" />
+        <button class="btn btn--ghost btn--sm" id="acAll">Ver tudo</button>
+      </div>
+      <div id="acertosBody"></div>
+    </section>
+
+    <!-- CONFIG -->
+    <section class="view" id="view-config">
+      <h2 class="page-title">Configurações</h2>
+      <p class="page-sub">Nomes dos ADMs, valores e backup dos dados.</p>
+
+      <div class="card">
+        <h3>ADMs</h3>
+        <div id="admConfig"></div>
+        <p class="hint">O ADM marcado como Dono fica com 100% dos diários que ele roda. Os outros dividem 50/50 com o Dono.</p>
+      </div>
+
+      <div class="card">
+        <h3>Valores</h3>
+        <div class="grid2">
+          <div class="field"><label>Inscrição por jogador (R$)</label><input type="number" id="cfgInscricao" min="0" step="0.5" /></div>
+          <div class="field"><label>Prêmio por kill (R$)</label><input type="number" id="cfgKill" min="0" step="0.5" /></div>
+          <div class="field"><label>Prêmio de vitória por jogador na sala (R$)</label><input type="number" id="cfgVitoria" min="0" step="0.5" /></div>
+          <div class="field"><label>Mensalidade semanal por ADM (R$)</label><input type="number" id="cfgSemanal" min="0" step="0.5" /></div>
+        </div>
+        <button class="btn btn--gold" id="saveCfg">Salvar configurações</button>
+        <p class="hint">Ex: prêmio de vitória = nº de jogadores × esse valor. Com R$1 e 10 jogadores = R$10 pro campeão.</p>
+      </div>
+
+      <div class="card">
+        <h3>Backup dos dados</h3>
+        <p class="muted" style="font-size:13.5px;margin-bottom:14px">Os dados ficam salvos só neste navegador. Faça backup de vez em quando pra não perder (ou pra usar em outro aparelho).</p>
+        <div class="toolbar" style="margin-bottom:0">
+          <button class="btn btn--purple" id="exportBtn">Baixar backup (.json)</button>
+          <button class="btn btn--ghost" id="importBtn">Restaurar backup</button>
+          <input type="file" id="importFile" accept="application/json" hidden />
+          <button class="btn btn--danger" id="resetBtn">Apagar tudo</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====================================================================
+   PAINEL DO ADM · DK Diário Brawl
+==================================================================== */
+var STORE = "dkAdmin_v1";
+
+function defaultState(){
+  return {
+    settings:{ inscricao:5, kill:3, vitoria:1, semanal:10 },
+    adms:[
+      {id:"a1", nome:"Você (Dono)", dono:true},
+      {id:"a2", nome:"ADM 2", dono:false},
+      {id:"a3", nome:"ADM 3", dono:false},
+      {id:"a4", nome:"ADM 4", dono:false}
+    ],
+    matches:[],      // {id,date,admId,players:[{nick,kills,win}]}
+    fees:[]          // {id,admId,week,date,valor}
+  };
+}
+var state = load();
+var currentUser = null;
+
+function load(){
+  try{ var d = JSON.parse(localStorage.getItem(STORE)); if(d && d.adms) return d; }catch(e){}
+  return defaultState();
+}
+function save(){ localStorage.setItem(STORE, JSON.stringify(state)); }
+
+/* ===== helpers ===== */
+function brl(n){ return "R$ " + (Math.round(n*100)/100).toFixed(2).replace(".",","); }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function admById(id){ for(var i=0;i<state.adms.length;i++) if(state.adms[i].id===id) return state.adms[i]; return null; }
+function owner(){ for(var i=0;i<state.adms.length;i++) if(state.adms[i].dono) return state.adms[i]; return state.adms[0]; }
+function todayISO(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function curMonth(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+function isoWeek(dt){
+  var d = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()));
+  var day = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate()+4-day);
+  var ys = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  var wn = Math.ceil((((d-ys)/86400000)+1)/7);
+  return d.getUTCFullYear()+"-W"+String(wn).padStart(2,"0");
+}
+
+/* ===== cálculo da partida ===== */
+function compute(match){
+  var s = state.settings;
+  var players = match.players.filter(function(p){ return p.nick && p.nick.trim(); });
+  var n = players.length;
+  var totalKills = 0; for(var i=0;i<players.length;i++) totalKills += (+players[i].kills||0);
+  var arrecadado = n * s.inscricao;
+  var premioVitoria = n * s.vitoria;       // vitória = nº jogadores × valor
+  var premioKills = totalKills * s.kill;
+  var premios = premioVitoria + premioKills;
+  var lucro = arrecadado - premios;
+  var adm = admById(match.admId);
+  var isOwner = adm && adm.dono;
+  var ownerShare = isOwner ? lucro : lucro/2;
+  var runnerShare = isOwner ? 0 : lucro/2;
+  return {n:n, totalKills:totalKills, arrecadado:arrecadado, premioVitoria:premioVitoria,
+    premioKills:premioKills, premios:premios, lucro:lucro, isOwner:isOwner,
+    ownerShare:ownerShare, runnerShare:runnerShare};
+}
+
+/* ===== TOAST ===== */
+var tT;
+function toast(msg, err){
+  var el = document.getElementById("toast");
+  el.textContent = msg; el.className = "toast is-on" + (err?" err":"");
+  clearTimeout(tT); tT = setTimeout(function(){ el.className="toast"+(err?" err":""); }, 3000);
+}
+
+/* ===== LOGIN ===== */
+function renderLogin(){
+  var g = document.getElementById("userGrid"); g.innerHTML = "";
+  state.adms.forEach(function(a){
+    var b = document.createElement("button");
+    b.className = "user-btn";
+    b.innerHTML = "<span>"+escapeHtml(a.nome)+"</span><span class='tag "+(a.dono?"tag--dono":"tag--adm")+"'>"+(a.dono?"DONO":"ADM")+"</span>";
+    b.onclick = function(){ currentUser = a.id; enterApp(); };
+    g.appendChild(b);
+  });
+}
+function enterApp(){
+  document.getElementById("login").style.display = "none";
+  document.getElementById("app").classList.add("is-on");
+  var a = admById(currentUser);
+  document.getElementById("curName").textContent = a.nome;
+  document.getElementById("curTag").innerHTML = "<span class='chip "+(a.dono?"chip--dono":"")+"'>"+(a.dono?"DONO":"ADM")+"</span>";
+  initMatchForm();
+  refreshAll();
+}
+document.getElementById("logoutBtn").onclick = function(){
+  currentUser = null;
+  document.getElementById("app").classList.remove("is-on");
+  document.getElementById("login").style.display = "grid";
+  renderLogin();
+};
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];}); }
+
+/* ===== TABS ===== */
+document.getElementById("tabs").addEventListener("click", function(e){
+  var t = e.target.closest(".tab"); if(!t) return;
+  document.querySelectorAll(".tab").forEach(function(x){ x.classList.remove("is-active"); });
+  t.classList.add("is-active");
+  document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("is-on"); });
+  document.getElementById("view-"+t.dataset.view).classList.add("is-on");
+});
+
+/* ===== NOVA PARTIDA ===== */
+function initMatchForm(){
+  var sel = document.getElementById("matchAdm"); sel.innerHTML = "";
+  state.adms.forEach(function(a){
+    var o = document.createElement("option"); o.value=a.id; o.textContent=a.nome+(a.dono?" (Dono)":"");
+    sel.appendChild(o);
+  });
+  sel.value = currentUser;
+  document.getElementById("matchDate").value = todayISO();
+  var box = document.getElementById("players"); box.innerHTML = "";
+  for(var i=0;i<10;i++) addPlayerRow();
+  renderPreview();
+}
+function addPlayerRow(nick, kills, win){
+  var box = document.getElementById("players");
+  var row = document.createElement("div"); row.className="prow";
+  row.innerHTML =
+    "<input type='text' class='p-nick' placeholder='Nick do jogador' value='"+(nick?escapeHtml(nick):"")+"'>"+
+    "<input type='number' class='p-kills' min='0' value='"+(kills!=null?kills:0)+"'>"+
+    "<button type='button' class='win-btn"+(win?" is-win":"")+"'>"+(win?"★ VENCEU":"Marcar")+"</button>"+
+    "<button type='button' class='del-row'>×</button>";
+  box.appendChild(row);
+  var winB = row.querySelector(".win-btn");
+  winB.onclick = function(){
+    var was = winB.classList.contains("is-win");
+    document.querySelectorAll(".win-btn").forEach(function(b){ b.classList.remove("is-win"); b.textContent="Marcar"; });
+    if(!was){ winB.classList.add("is-win"); winB.textContent="★ VENCEU"; }
+    renderPreview();
+  };
+  row.querySelector(".del-row").onclick = function(){ row.remove(); renderPreview(); };
+  row.querySelector(".p-nick").oninput = renderPreview;
+  row.querySelector(".p-kills").oninput = renderPreview;
+}
+function readForm(){
+  var rows = document.querySelectorAll("#players .prow");
+  var players = [];
+  rows.forEach(function(r){
+    players.push({
+      nick: r.querySelector(".p-nick").value.trim(),
+      kills: +r.querySelector(".p-kills").value || 0,
+      win: r.querySelector(".win-btn").classList.contains("is-win")
+    });
+  });
+  return { id:uid(), date:document.getElementById("matchDate").value||todayISO(),
+    admId:document.getElementById("matchAdm").value, players:players };
+}
+function renderPreview(){
+  var m = readForm();
+  var c = compute(m);
+  var adm = admById(m.admId);
+  var splitTxt = c.isOwner
+    ? "100% pro Dono ("+escapeHtml(adm.nome)+")"
+    : "50% Dono / 50% "+escapeHtml(adm.nome);
+  var html =
+    "<div class='pline'><span>Jogadores na sala</span><span>"+c.n+"</span></div>"+
+    "<div class='pline'><span>Arrecadado ("+c.n+" × "+brl(state.settings.inscricao)+")</span><span>"+brl(c.arrecadado)+"</span></div>"+
+    "<div class='pline'><span>Prêmio de vitória</span><span>"+brl(c.premioVitoria)+"</span></div>"+
+    "<div class='pline'><span>Prêmio de kills ("+c.totalKills+" × "+brl(state.settings.kill)+")</span><span>"+brl(c.premioKills)+"</span></div>"+
+    "<div class='pline pline--total'><span>Lucro da partida</span><span style='color:"+(c.lucro<0?"#ff8585":"var(--gold)")+"'>"+brl(c.lucro)+"</span></div>"+
+    "<div class='pline pline--split'><span>Divisão ("+splitTxt+")</span><span>"+(c.isOwner?brl(c.ownerShare)+" Dono":brl(c.ownerShare)+" / "+brl(c.runnerShare))+"</span></div>";
+  document.getElementById("preview").innerHTML = html;
+}
+document.getElementById("addPlayer").onclick = function(){ addPlayerRow(); };
+document.getElementById("clearMatch").onclick = function(){ initMatchForm(); };
+document.getElementById("saveMatch").onclick = function(){
+  var m = readForm();
+  var filled = m.players.filter(function(p){ return p.nick; });
+  if(filled.length < 2){ toast("Adicione pelo menos 2 jogadores.", true); return; }
+  var winners = filled.filter(function(p){ return p.win; });
+  if(winners.length !== 1){ toast("Marque exatamente 1 vencedor.", true); return; }
+  m.players = filled;
+  state.matches.push(m);
+  save();
+  toast("Partida salva! ✅");
+  initMatchForm();
+  refreshAll();
+};
+
+/* ===== PARTIDAS (histórico) ===== */
+function renderHistory(){
+  var month = document.getElementById("histMonth").value;
+  var list = state.matches.slice().sort(function(a,b){ return b.date<a.date?-1:1; });
+  if(month) list = list.filter(function(m){ return m.date.slice(0,7)===month; });
+  var box = document.getElementById("matchList");
+  if(!list.length){ box.innerHTML = "<div class='empty'>Nenhuma partida registrada"+(month?" nesse mês":"")+".</div>"; return; }
+  box.innerHTML = "";
+  list.forEach(function(m){
+    var c = compute(m);
+    var adm = admById(m.admId);
+    var win = m.players.find(function(p){ return p.win; });
+    var d = document.createElement("details"); d.className="match";
+    var rows = m.players.map(function(p){
+      return "<tr><td>"+escapeHtml(p.nick)+(p.win?" <span class='chip chip--gold'>VENCEU</span>":"")+"</td><td>"+p.kills+"</td><td class='money'>"+brl((p.win?c.premioVitoria:0)+p.kills*state.settings.kill)+"</td></tr>";
+    }).join("");
+    d.innerHTML =
+      "<summary><div class='m-meta'><b>"+m.date.split("-").reverse().join("/")+"</b>"+
+      "<span class='chip "+(adm&&adm.dono?"chip--dono":"")+"'>"+escapeHtml(adm?adm.nome:"?")+"</span>"+
+      "<span>"+c.n+" jog.</span><span>🏆 "+(win?escapeHtml(win.nick):"-")+"</span></div>"+
+      "<div class='m-meta'><b style='color:var(--gold)'>Lucro "+brl(c.lucro)+"</b><button class='btn btn--danger btn--sm' data-del='"+m.id+"'>Excluir</button></div></summary>"+
+      "<div class='table-wrap' style='margin:8px 0 14px'><table class='tbl'><thead><tr><th>Jogador</th><th>Kills</th><th>Faturou</th></tr></thead><tbody>"+rows+"</tbody></table></div>"+
+      "<div class='preview'><div class='pline'><span>Arrecadado</span><span>"+brl(c.arrecadado)+"</span></div>"+
+      "<div class='pline'><span>Prêmios pagos</span><span>"+brl(c.premios)+"</span></div>"+
+      "<div class='pline pline--total'><span>Lucro</span><span>"+brl(c.lucro)+"</span></div>"+
+      "<div class='pline pline--split'><span>"+(c.isOwner?"100% Dono":"50% Dono / 50% "+escapeHtml(adm.nome))+"</span><span>"+(c.isOwner?brl(c.ownerShare):brl(c.ownerShare)+" / "+brl(c.runnerShare))+"</span></div></div>";
+    box.appendChild(d);
+  });
+  box.querySelectorAll("[data-del]").forEach(function(b){
+    b.onclick = function(e){ e.preventDefault();
+      if(confirm("Excluir esta partida? Não dá pra desfazer.")){
+        state.matches = state.matches.filter(function(m){ return m.id!==b.dataset.del; });
+        save(); toast("Partida excluída."); refreshAll();
+      }
+    };
+  });
+}
+document.getElementById("histMonth").onchange = renderHistory;
+document.getElementById("histAll").onclick = function(){ document.getElementById("histMonth").value=""; renderHistory(); };
+
+/* ===== RANKING ===== */
+function renderRanking(){
+  var month = document.getElementById("rankMonth").value || curMonth();
+  var agg = {};
+  state.matches.forEach(function(m){
+    if(m.date.slice(0,7)!==month) return;
+    var c = compute(m);
+    m.players.forEach(function(p){
+      var key = p.nick.toLowerCase();
+      if(!agg[key]) agg[key] = {nick:p.nick, kills:0, wins:0, money:0};
+      agg[key].kills += (+p.kills||0);
+      agg[key].money += (+p.kills||0)*state.settings.kill;
+      if(p.win){ agg[key].wins++; agg[key].money += c.premioVitoria; }
+    });
+  });
+  var arr = Object.keys(agg).map(function(k){ return agg[k]; });
+  arr.sort(function(a,b){ return b.money-a.money || b.kills-a.kills; });
+  var body = document.getElementById("rankBody");
+  if(!arr.length){ body.innerHTML = "<tr><td colspan='5' class='empty'>Sem partidas nesse mês ainda.</td></tr>"; return; }
+  var medal = ["🥇","🥈","🥉"];
+  body.innerHTML = arr.map(function(p,i){
+    return "<tr class='"+(i===0?"rank-1":"")+"'><td class='pos'>"+(medal[i]||(i+1))+"</td>"+
+      "<td><b>"+escapeHtml(p.nick)+"</b>"+(i===0?" <span class='chip chip--gold'>+ BÔNUS R$40</span>":"")+"</td>"+
+      "<td>"+p.kills+"</td><td>"+p.wins+"</td><td class='money'>"+brl(p.money)+"</td></tr>";
+  }).join("");
+}
+document.getElementById("rankMonth").onchange = renderRanking;
+
+/* ===== ACERTOS ===== */
+function feeWeeksInScope(admId, month){
+  return state.fees.filter(function(f){ return f.admId===admId && (!month || f.date.slice(0,7)===month); });
+}
+function renderAcertos(){
+  var month = document.getElementById("acMonth").value;
+  var scope = month ? state.matches.filter(function(m){ return m.date.slice(0,7)===month; }) : state.matches;
+  var me = admById(currentUser);
+  var box = document.getElementById("acertosBody");
+  var s = state.settings;
+
+  // dados por adm
+  var data = {};
+  state.adms.forEach(function(a){ data[a.id]={adm:a, jogos:0, lucro:0}; });
+  scope.forEach(function(m){ var c=compute(m); if(data[m.admId]){ data[m.admId].jogos++; data[m.admId].lucro+=c.lucro; } });
+
+  var ow = owner();
+  if(me.dono){
+    // visão do dono
+    var lucroProprio = data[ow.id].lucro;
+    var receberAdms = 0, feesTotal = 0;
+    state.adms.forEach(function(a){ if(!a.dono){ receberAdms += data[a.id].lucro/2; feesTotal += feeWeeksInScope(a.id,month).reduce(function(t,f){return t+f.valor;},0); } });
+    var total = lucroProprio + receberAdms + feesTotal;
+
+    var html = "<div class='stats'>"+
+      "<div class='stat stat--green'><div class='v'>"+brl(total)+"</div><div class='l'>Total do Dono"+(month?" (mês)":"")+"</div></div>"+
+      "<div class='stat stat--gold'><div class='v'>"+brl(lucroProprio)+"</div><div class='l'>Seus diários (100%)</div></div>"+
+      "<div class='stat stat--purple'><div class='v'>"+brl(receberAdms)+"</div><div class='l'>A receber dos ADMs (50%)</div></div>"+
+      "<div class='stat stat--blue'><div class='v'>"+brl(feesTotal)+"</div><div class='l'>Mensalidades recebidas</div></div>"+
+      "</div>";
+
+    html += "<div class='table-wrap'><table class='tbl'><thead><tr><th>ADM</th><th>Diários</th><th>Lucro gerado</th><th>Parte dele</th><th>Repassa ao Dono</th><th>Mensalidade ("+(month||"geral")+")</th></tr></thead><tbody>";
+    state.adms.forEach(function(a){
+      var d = data[a.id];
+      var parteDele = a.dono ? d.lucro : d.lucro/2;
+      var repassa = a.dono ? 0 : d.lucro/2;
+      var fees = feeWeeksInScope(a.id, month);
+      var feeCell = a.dono ? "<span class='muted'>—</span>"
+        : "<span class='chip chip--ok'>"+fees.length+" sem. · "+brl(fees.length*s.semanal)+"</span> <button class='btn btn--ghost btn--sm' data-fee='"+a.id+"'>+ semana</button>";
+      html += "<tr><td><b>"+escapeHtml(a.nome)+"</b> "+(a.dono?"<span class='chip chip--dono'>DONO</span>":"")+"</td>"+
+        "<td>"+d.jogos+"</td><td class='money'>"+brl(d.lucro)+"</td><td class='money'>"+brl(parteDele)+"</td>"+
+        "<td class='money'>"+brl(repassa)+"</td><td>"+feeCell+"</td></tr>";
+    });
+    html += "</tbody></table></div>";
+    box.innerHTML = html;
+    box.querySelectorAll("[data-fee]").forEach(function(b){
+      b.onclick = function(){ registerFee(b.dataset.fee); };
+    });
+  } else {
+    // visão de um ADM comum
+    var d = data[me.id];
+    var suaParte = d.lucro/2, repassa = d.lucro/2;
+    var fees = feeWeeksInScope(me.id, month);
+    var html = "<div class='stats'>"+
+      "<div class='stat stat--gold'><div class='v'>"+d.jogos+"</div><div class='l'>Diários que você rodou</div></div>"+
+      "<div class='stat stat--purple'><div class='v'>"+brl(d.lucro)+"</div><div class='l'>Lucro gerado</div></div>"+
+      "<div class='stat stat--green'><div class='v'>"+brl(suaParte)+"</div><div class='l'>Sua parte (50%)</div></div>"+
+      "<div class='stat stat--blue'><div class='v'>"+brl(repassa)+"</div><div class='l'>Você repassa ao Dono (50%)</div></div>"+
+      "</div>";
+    html += "<div class='card'><h3>Sua mensalidade</h3><p class='muted' style='font-size:13.5px'>Você paga "+brl(s.semanal)+" por semana ao Dono pra ser ADM.</p>"+
+      "<p style='margin:10px 0'>Semanas pagas"+(month?" no mês":"")+": <b>"+fees.length+"</b> · Total "+brl(fees.length*s.semanal)+"</p>"+
+      "<button class='btn btn--green' id='payFee'>Registrar pagamento da semana atual</button></div>";
+    box.innerHTML = html;
+    var pf = document.getElementById("payFee");
+    if(pf) pf.onclick = function(){ registerFee(me.id); };
+  }
+}
+function registerFee(admId){
+  var wk = isoWeek(new Date());
+  var exists = state.fees.some(function(f){ return f.admId===admId && f.week===wk; });
+  if(exists){ if(!confirm("A semana atual ("+wk+") já está marcada como paga pra esse ADM. Registrar mesmo assim?")) return; }
+  state.fees.push({id:uid(), admId:admId, week:wk, date:todayISO(), valor:state.settings.semanal});
+  save(); toast("Mensalidade registrada ("+wk+")."); renderAcertos();
+}
+document.getElementById("acMonth").onchange = renderAcertos;
+document.getElementById("acAll").onclick = function(){ document.getElementById("acMonth").value=""; renderAcertos(); };
+
+/* ===== CONFIG ===== */
+function renderConfig(){
+  var box = document.getElementById("admConfig"); box.innerHTML = "";
+  state.adms.forEach(function(a){
+    var row = document.createElement("div"); row.className="field";
+    row.innerHTML = "<label>"+(a.dono?"Dono":"ADM")+"</label>"+
+      "<div style='display:flex;gap:8px;align-items:center'><input type='text' value='"+escapeHtml(a.nome)+"' data-name='"+a.id+"' style='flex:1'>"+
+      "<button class='btn btn--ghost btn--sm' data-setdono='"+a.id+"'>"+(a.dono?"★ Dono":"Tornar Dono")+"</button></div>";
+    box.appendChild(row);
+  });
+  box.querySelectorAll("[data-name]").forEach(function(inp){
+    inp.onchange = function(){ var a=admById(inp.dataset.name); if(a){ a.nome=inp.value.trim()||a.nome; save(); toast("Nome salvo."); renderLogin(); } };
+  });
+  box.querySelectorAll("[data-setdono]").forEach(function(b){
+    b.onclick = function(){
+      state.adms.forEach(function(a){ a.dono = (a.id===b.dataset.setdono); });
+      save(); toast("Dono atualizado."); renderConfig(); renderLogin();
+    };
+  });
+  document.getElementById("cfgInscricao").value = state.settings.inscricao;
+  document.getElementById("cfgKill").value = state.settings.kill;
+  document.getElementById("cfgVitoria").value = state.settings.vitoria;
+  document.getElementById("cfgSemanal").value = state.settings.semanal;
+}
+document.getElementById("saveCfg").onclick = function(){
+  state.settings.inscricao = +document.getElementById("cfgInscricao").value||0;
+  state.settings.kill = +document.getElementById("cfgKill").value||0;
+  state.settings.vitoria = +document.getElementById("cfgVitoria").value||0;
+  state.settings.semanal = +document.getElementById("cfgSemanal").value||0;
+  save(); toast("Configurações salvas!"); initMatchForm(); refreshAll();
+};
+
+/* ===== BACKUP ===== */
+document.getElementById("exportBtn").onclick = function(){
+  var blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "dk-backup-"+todayISO()+".json";
+  a.click(); URL.revokeObjectURL(a.href);
+  toast("Backup baixado!");
+};
+document.getElementById("importBtn").onclick = function(){ document.getElementById("importFile").click(); };
+document.getElementById("importFile").onchange = function(e){
+  var f = e.target.files[0]; if(!f) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try{
+      var d = JSON.parse(r.result);
+      if(!d.adms || !d.matches){ toast("Arquivo inválido.", true); return; }
+      state = d; save(); toast("Backup restaurado!");
+      renderLogin(); renderConfig(); refreshAll();
+    }catch(err){ toast("Erro ao ler o arquivo.", true); }
+  };
+  r.readAsText(f);
+  e.target.value = "";
+};
+document.getElementById("resetBtn").onclick = function(){
+  if(confirm("Isso apaga TODAS as partidas, mensalidades e configurações deste navegador. Tem certeza?")){
+    state = defaultState(); save(); toast("Tudo apagado.");
+    renderLogin(); renderConfig(); initMatchForm(); refreshAll();
+  }
+};
+
+/* ===== refresh ===== */
+function refreshAll(){
+  if(!document.getElementById("rankMonth").value) document.getElementById("rankMonth").value = curMonth();
+  renderHistory(); renderRanking(); renderAcertos(); renderConfig();
+}
+
+/* ===== INIT ===== */
+renderLogin();
+renderConfig();
+</script>
+</body>
+</html>
